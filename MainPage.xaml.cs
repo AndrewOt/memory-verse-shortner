@@ -3,14 +3,11 @@ using Windows.UI.Xaml.Controls;
 using Windows.ApplicationModel.DataTransfer;
 using System.Collections.Generic;
 using System.Text;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MemoryVerseShortener
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         public MainPage()
@@ -32,32 +29,35 @@ namespace MemoryVerseShortener
         }
 
 
-        public string TransformString(string input)
+        private string TransformString(string input)
         {
-            string[] splitInput = input.Split(' ');
+            string[] splitInput = input.Split(' ', '\n', '\r').Where(s => s.Length > 0).ToArray();
             Queue<string> outputList = new Queue<string>();
 
             // Add a number for verse 1 if no number is present
-           if (!char.IsDigit(splitInput[0][0]))
+            if (!char.IsDigit(splitInput[0][0]))
             {
                 outputList.Enqueue("1 ");
             }
 
             foreach (string s in splitInput)
             {
-                if (char.IsDigit(s[0]))
-                {
-                    outputList.Enqueue($"\n{s} ");
-                }
-                else
-                {
-                    outputList.Enqueue(s.Substring(0, 1).ToUpper());
-                }
+                //if (s.Length > 0)
+                //{
+                    if (char.IsDigit(s[0]))
+                    {
+                        outputList.Enqueue($"\n{s} ");
+                    }
+                    else
+                    {
+                        outputList.Enqueue(s.Substring(0, 1).ToUpper());
+                    }
 
-                if (char.IsPunctuation(s, s.Length -1))
-                {
-                    outputList.Enqueue($"{s[s.Length - 1]} ");
-                }
+                    if (IsPunct(s, s.Length - 1))
+                    {
+                        outputList.Enqueue($"{s[s.Length - 1]} ");
+                    }
+                //}
             }
 
             StringBuilder outputString = new StringBuilder();
@@ -66,6 +66,24 @@ namespace MemoryVerseShortener
                 outputString.Append(outputList.Dequeue());
             }
             return outputString.ToString();
+        }
+
+        private bool IsPunct(string s, int index)
+        {
+            char c = s[index];
+            switch (c)
+            {
+                case '.':
+                case ',':
+                case ':':
+                case ';':
+                case '-':
+                case '!':
+                case '?':
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

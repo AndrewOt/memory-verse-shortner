@@ -29,6 +29,7 @@
                 x:Name="input"
                 TextWrapping="Wrap"
                 AcceptsReturn="True"
+                ScrollViewer.VerticalScrollBarVisibility="Visible"
                 PlaceholderText="Enter memory verse(s) here."
                 />
         </StackPanel>
